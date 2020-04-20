@@ -10,7 +10,9 @@ var data = [{
     line: {color: '#80CAF6'}
 }]
 
-Plotly.newPlot('graph', data);
+Plotly.newPlot('graph', data, {
+    autosize: true,
+});
 
 var cnt = 0;
 
@@ -36,7 +38,7 @@ var interval = setInterval(function() {
     Plotly.relayout('graph', minuteView);
     Plotly.extendTraces('graph', update, [0])
 
-    if(++cnt === 100) clearInterval(interval);
+ //   if(++cnt === 100) clearInterval(interval);
 }, 1000);
 
 //Websocket script
@@ -83,6 +85,11 @@ WSocket.onmessage = function incoming(event) {
             checked = true;
         }
         elem.prop('checked', checked);
+    } else if (topic == "Send_time_stamp"){
+        document.getElementById("demo2").innerHTML = message;
+    } else if (topic == "send_photo") {
+        let src = "data:image/png;base64," + message;
+        document.getElementById('photo').setAttribute('src', src);
     }
     
 };
@@ -97,6 +104,12 @@ $(document).ready(() => {
         WSocket.send(JSON.stringify({
             topic: 'SWITCH1',
             message: checked,
+        }));
+    });
+    $('#take_photo_button').click(function() {
+        WSocket.send(JSON.stringify({
+            topic: 'BUTTON1',
+            message: true,
         }));
     });
 });

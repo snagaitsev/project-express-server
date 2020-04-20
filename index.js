@@ -13,6 +13,9 @@ const wss = new WebSocket.Server({ server });
 var topic_1 = "GPU_temperature"
 var topic_2 = "SENSOR"
 var topic_3 = "LEDONOFF"
+var topic_4 = "take_photo"
+var topic_5 = "Send_time_stamp"
+var topic_6 = "send_photo"
 
 var switchState = "F"
 
@@ -56,6 +59,24 @@ client.on('connect', function () {
           client.publish(topic_3, switchState)
         }
     })
+    client.subscribe(topic_4, function (err) {
+        if (!err) {
+          //client.publish('presence', 'Hello mqtt')
+          console.log("MQTT connected, topic " + topic_4)
+        }
+    })
+    client.subscribe(topic_5, function (err) {
+        if (!err) {
+          //client.publish('presence', 'Hello mqtt')
+          console.log("MQTT connected, topic " + topic_5)
+        }
+    })
+    client.subscribe(topic_6, function (err) {
+        if (!err) {
+          //client.publish('presence', 'Hello mqtt')
+          console.log("MQTT connected, topic " + topic_6)
+        }
+    })
    
 })
 
@@ -63,7 +84,7 @@ client.on('connect', function () {
 //client.subscribe(topic_s,{qos:1});
 client.on('message', function (topic, message) {
     // message is Buffer
-    console.log("topic: " + topic +  " message: " + message.toString())
+    console.log("topic: " + topic /*+  " message: " + message.toString()*/)
 
     //client.end()
 })
@@ -103,17 +124,45 @@ wss.on('connection', function connection(ws, req) {
             client.publish(topic_3, "F")
             switchState = 'F'
         }
+        if(topic == "BUTTON1"){
+            client.publish(topic_4, 'T')
+            console.log("Button clicked.")
+        }
     
     });
+
+    let parts = [];
+    let count = 0;
+
     client.on("message", function (topic, message){
         const obj = {
             topic: topic,
             message: message.toString(),
         };
-        if(topic == "LEDONOFF"){
+        if(topic == topic_3){
             obj.topic = "SWITCH1"
+            ws.send(JSON.stringify(obj));
+        } else if (topic == topic_6) {
+            const obj1 = JSON.parse(message)
+            parts.push(obj1);
+            count++;
+            if (count == obj1.parts.count) {
+                count = 0;
+                let str = '';
+                parts.forEach(part => {
+                    str += part.data;
+                });
+                parts = [];
+
+                //console.log(str)
+                obj.message = str
+                ws.send(JSON.stringify(obj));
+            }
+            // console.log("number of parts: " + obj1.parts.count)
+        } else {
+            ws.send(JSON.stringify(obj));
         }
-        ws.send(JSON.stringify(obj));
+        //ws.send(JSON.stringify(obj));
         // ws.send(myObj.message.toString());
     })
    
