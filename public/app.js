@@ -42,19 +42,17 @@ var interval = setInterval(function() {
 }, 1000);
 
 //Websocket script
-var uri1 = window.location;
+//var uri1 = window.location;
 var uri = window.location.href.split('://');
 //var uri2 = uri[1].split(":")
 var wslead = 'ws://';
-    if (uri[1] == 'https') wslead = 'wss://';
-    if (uri[1].indexOf('/') < (uri[1].length - 1))
-    {
-        wsUri = wslead + uri[1];
-    }
-    else
-    {
-        wsUri = wslead + uri[1];
-    }
+if (uri[0] == 'https') wslead = 'wss://';
+if (uri[1].indexOf('/') < (uri[1].length - 1)){
+    wsUri = wslead + uri[1];
+}
+else {
+    wsUri = wslead + uri[1];
+}
 var WSocket = new WebSocket(wsUri);
 //var WSocket = new WebSocket("ws://localhost:3000/");
 
